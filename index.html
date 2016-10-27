@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO Snake Multiplayer</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+    </style>
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      document.onkeydown = (ev) => {
+        socket.emit('key', ev.code);
+      }
+    </script>
+  </body>
+</html>
+
