@@ -2,19 +2,26 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var autoId = 0;
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
+io.on('connection', (client) => {
+  console.log('new client connected');
+  client.on('auth', (cb) => {
+    const id = autoId++;
+    console.log('player ' + id + ' authenticated');
+    cb({ id });
+  });
 
-  socket.on('key', (key) => {
+  client.on('key', (key) => {
     console.log(key);
   });
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+  client.on('disconnect', () => {
+    console.log('player disconnected');
   });
 });
 

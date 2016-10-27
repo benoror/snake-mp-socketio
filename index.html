@@ -11,6 +11,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
+      var id;
+
+      socket.emit('auth', (session) => {
+        id = session.id;
+        console.log('new session: ' + id);
+      });
+
       document.onkeydown = (ev) => {
         socket.emit('key', ev.code);
       }
