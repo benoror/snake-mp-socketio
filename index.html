@@ -19,8 +19,12 @@
       });
 
       document.onkeydown = (ev) => {
-        socket.emit('key', ev.code);
+        socket.emit('key', ev.keyCode);
       }
+
+      socket.on('board', (board) => {
+        console.log('board: ' + board);
+      });
     </script>
   </body>
 </html>
