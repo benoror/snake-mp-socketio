@@ -22,9 +22,15 @@ Array.prototype.remove = function(e) {
   }
 };
 
-// Remote players
+// Remote players 🐍
 var players = [];
 
+// Apples 🍎
+var apples = [];
+
+/*
+ * Snake class
+ */
 class Snake {
   constructor(dir, x, y) {
     this.dir = dir; //direction
@@ -67,6 +73,31 @@ class Snake {
     if(this.y > 30-1) this.y = 0;
     if(this.y < 0) this.y = 30-1;
   }
+
+  checkCollisions(objects) {
+    for(let i = 0; i < objects.length; i++) {
+      const obj = objects[i];
+      if(obj.x === this.x && obj.y === this.y) {
+        obj.respawn();
+      }
+    }
+
+  }
+}
+
+/*
+ * Apple class
+ */
+class Apple {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  respawn() {
+    this.x = Math.random() * 30 | 0;
+    this.y = Math.random() * 30 | 0;
+  }
 }
 
 /*
@@ -100,12 +131,18 @@ io.on('connection', (client) => {
   });
 });
 
+// Create apples
+apples.push(new Apple(15,15));
+
 // Main loop
 setInterval(() => {
-  players.forEach((p) => { p.move(); });
+  players.forEach((p) => {
+    p.move();
+    p.checkCollisions(apples);
+  });
   io.emit('state', {
     players: players.map((p) => ({ x: p.x, y: p.y })),
-    apples: [{x: 10, y: 10}]
+    apples: apples
   });
 }, 100);
 
