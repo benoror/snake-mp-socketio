@@ -1,5 +1,5 @@
 {
-  "name": "snake-mp",
+  "name": "snake-mp-socketio",
   "version": "0.0.1",
   "description": "snake multiplayer game using socket.io",
   "main": "index.js",
@@ -15,5 +15,19 @@
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benoror/snake-mp-socketio.git"
+  },
+  "keywords": [
+    "snake",
+    "game",
+    "multiplayer",
+    "socket.io"
+  ],
+  "bugs": {
+    "url": "https://github.com/benoror/snake-mp-socketio/issues"
+  },
+  "homepage": "https://github.com/benoror/snake-mp-socketio#readme"
 }
