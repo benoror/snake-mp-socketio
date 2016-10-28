@@ -20,12 +20,14 @@ var autoId = 0;
 var players = [];
 
 Snake = (function() {
-  function Snake(id, dir) {
+  function Snake(id, dir, x, y) {
     this.id = id;
     this.dir = dir;
+    this.x = x;
+    this.y = y;
   }
 
-  Snake.prototype.move = function(key) {
+  Snake.prototype.changeDirection = function(key) {
     switch (key) {
       case KEYS.up:
         if (this.dir !== 'down') {
@@ -50,6 +52,24 @@ Snake = (function() {
     }
   }
 
+  Snake.prototype.move = function() {
+    switch(this.dir) {
+      case 'right':
+        this.x++; break;
+      case 'left':
+        this.x--; break;
+      case 'up':
+        this.y--; break;
+      case 'down':
+        this.y++; break;
+    }
+
+    if(this.x > 30-1) this.x = 0;
+    if(this.x < 0) this.x = 30-1;
+    if(this.y > 30-1) this.y = 0;
+    if(this.y < 0) this.y = 30-1;
+  }
+
   return Snake;
 })();
 
@@ -59,7 +79,7 @@ app.get('/', function(req, res){
 
 io.on('connection', (client) => {
   const id = autoId++;
-  var player = new Snake(id, 'right');
+  var player = new Snake(id, 'right', 0, 1);
   players.push(player);
 
   client.on('auth', (cb) => {
@@ -68,7 +88,7 @@ io.on('connection', (client) => {
   });
 
   client.on('key', (key) => {
-    player.move(key);
+    player.changeDirection(key);
   });
 
   client.on('disconnect', () => {
@@ -78,7 +98,13 @@ io.on('connection', (client) => {
 });
 
 var tick = function() {
-  io.emit('board', players.map((p) => p.dir));
+  players.forEach((p) => { p.move(); });
+  io.emit('state', players.map((p) => {
+    return {
+      x: p.x,
+      y: p.y
+    }
+  }));
 };
 
 setInterval(tick, 100);

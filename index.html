@@ -3,13 +3,45 @@
   <head>
     <title>Socket.IO Snake Multiplayer</title>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
+      * { margin: 0; padding: 0; }
     </style>
   </head>
   <body>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      GameCanvas = (function() {
+        function GameCanvas(canvas) {
+          var r = window.innerWidth < window.innerHeight ? 
+            window.innerWidth : window.innerHeight;
+
+          this.cell = (r / 30);
+
+          this.canvas = canvas;
+          this.canvas.width = this.canvas.height = r;
+          this.context = this.canvas.getContext('2d');
+        }
+
+        GameCanvas.prototype.draw = function(players) {
+          var context = this.context;
+          var cell = this.cell;
+
+          this.context.fillStyle = "#555";
+          this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          players.forEach((p) => {
+            context.fillStyle = "#ffffff";
+            context.fillRect(p.x*cell, p.y*cell, cell, cell);
+          });
+        }
+
+        return GameCanvas;
+      })();
+
+      var canvas = document.createElement("canvas");
+      document.body.appendChild(canvas);
+
+      var game = new GameCanvas(canvas);
+
       var socket = io();
       var id;
 
@@ -22,9 +54,10 @@
         socket.emit('key', ev.keyCode);
       }
 
-      socket.on('board', (board) => {
-        console.log('board: ' + board);
+      socket.on('state', (players) => {
+        game.draw(players);
       });
+
     </script>
   </body>
 </html>
