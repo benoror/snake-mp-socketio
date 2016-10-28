@@ -26,7 +26,7 @@
         /*
           Render game canvas & draw players
         */
-        GameCanvas.prototype.draw = function(players) {
+        GameCanvas.prototype.draw = function(players, apples) {
           var context = this.context;
           var cellSize = this.cellSize;
 
@@ -38,6 +38,12 @@
           players.forEach((p) => {
             context.fillStyle = "#ffffff";
             context.fillRect(p.x*cellSize, p.y*cellSize, cellSize, cellSize);
+          });
+
+          // Render apples
+          apples.forEach((a) => {
+            context.fillStyle = "#ff0000";
+            context.fillRect(a.x*cellSize, a.y*cellSize, cellSize, cellSize);
           });
         }
 
@@ -64,9 +70,9 @@
       }
 
       // Receive state from server
-      socket.on('state', (players) => {
+      socket.on('state', (stuff) => {
         // and redraw the game
-        game.draw(players);
+        game.draw(stuff.players, stuff.apples);
       });
 
     </script>
