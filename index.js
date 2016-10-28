@@ -16,26 +16,30 @@ const KEYS = {
 
 // Handy remove method for arrays
 Array.prototype.remove = function(e) {
-  var p, _;
+  let p, _;
   if ((p = this.indexOf(e)) > -1) {
     return ([].splice.apply(this, [p, p - p + 1].concat(_ = [])), _);
   }
 };
 
+// ID's seed
+let autoId = 0;
+
 // Remote players 🐍
-var players = [];
+let players = [];
 
 // Apples 🍎
-var apples = [];
+let apples = [];
 
 /*
  * Snake class
  */
 class Snake {
-  constructor(dir, x, y) {
+  constructor(dir, x, y, id) {
     this.dir = dir; //direction
     this.x = x;
     this.y = y;
+    this.id = id;
   }
 
   changeDirection(key) {
@@ -116,13 +120,22 @@ http.listen(3000, () => {
  * Listen for incoming clients
  */
 io.on('connection', (client) => {
-  var player = new Snake('right', 0, 1);
-  players.push(player);
+  let player;
+  let id;
+
+  client.on('auth', (cb) => {
+    id = ++autoId;
+    player = new Snake('right', 0, 1, id);
+    players.push(player);
+    cb({ id: autoId });
+  });
 
   // Receive keystrokes
   client.on('key', (key) => {
     // and change direction accordingly
-    player.changeDirection(key);
+    if(player) {
+      player.changeDirection(key);
+    }
   });
 
   // Remove player on disconnect
@@ -141,7 +154,11 @@ setInterval(() => {
     p.checkCollisions(apples);
   });
   io.emit('state', {
-    players: players.map((p) => ({ x: p.x, y: p.y })),
+    players: players.map((p) => ({
+      x: p.x,
+      y: p.y ,
+      id: p.id
+    })),
     apples: apples
   });
 }, 100);

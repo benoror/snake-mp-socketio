@@ -36,7 +36,11 @@
 
           // Render players
           players.forEach((p) => {
-            context.fillStyle = "#ffffff";
+            if(p.id === playerId) {
+              context.fillStyle = "#fff";
+            } else {
+              context.fillStyle = "#4286f4";
+            }
             context.fillRect(p.x*cellSize, p.y*cellSize, cellSize, cellSize);
           });
 
@@ -56,6 +60,12 @@
 
       var socket = io();
       var playerId;
+
+      // Authenticate
+      socket.emit('auth', (session) => {
+        playerId = session.id;
+        console.log('new session: ' + playerId);
+      });
 
       // Create & insert canvas
       var canvas = document.createElement("canvas");
