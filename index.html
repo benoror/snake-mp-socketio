@@ -10,51 +10,62 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       GameCanvas = (function() {
+        /*
+          Constructor
+        */
         function GameCanvas(canvas) {
-          var r = window.innerWidth < window.innerHeight ? 
+          var ratio = window.innerWidth < window.innerHeight ? 
             window.innerWidth : window.innerHeight;
 
-          this.cell = (r / 30);
-
           this.canvas = canvas;
-          this.canvas.width = this.canvas.height = r;
+          this.canvas.width = this.canvas.height = ratio;
           this.context = this.canvas.getContext('2d');
+          this.cellSize = ratio / 30;
         }
 
+        /*
+          Render game canvas & draw players
+        */
         GameCanvas.prototype.draw = function(players) {
           var context = this.context;
-          var cell = this.cell;
+          var cellSize = this.cellSize;
 
+          // Render background
           this.context.fillStyle = "#555";
           this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+          // Render players
           players.forEach((p) => {
             context.fillStyle = "#ffffff";
-            context.fillRect(p.x*cell, p.y*cell, cell, cell);
+            context.fillRect(p.x*cellSize, p.y*cellSize, cellSize, cellSize);
           });
         }
 
         return GameCanvas;
       })();
 
+      /*
+        Initialize Game
+      */
+
+      var socket = io();
+      var playerId;
+
+      // Create & insert canvas
       var canvas = document.createElement("canvas");
       document.body.appendChild(canvas);
 
+      // Create game with canvas
       var game = new GameCanvas(canvas);
 
-      var socket = io();
-      var id;
-
-      socket.emit('auth', (session) => {
-        id = session.id;
-        console.log('new session: ' + id);
-      });
-
+      // Send keystrokes
       document.onkeydown = (ev) => {
         socket.emit('key', ev.keyCode);
       }
 
+      // Receive state from server
       socket.on('state', (players) => {
+        // and redraw the game
         game.draw(players);
       });
 
