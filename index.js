@@ -111,15 +111,45 @@ class Snake {
  * Apple class
  */
 class Apple {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
+  constructor(snakes, apples) {
+    this.snakes = snakes;
+    this.apples = apples;
+    this.respawn();
   }
 
   respawn() {
     this.x = Math.random() * 30 | 0;
     this.y = Math.random() * 30 | 0;
+
+    this.checkCollisions();
+
     return this;
+  }
+
+  checkCollisions() {
+    // With snakes
+    this.snakes.forEach((s) => {
+      // Head
+      if(s.x === this.x && s.y === this.y) {
+        this.respawn();
+      }
+      // Tail
+      s.tail.forEach((t) => {
+        if(t.x === this.x && t.y === this.y) {
+          this.respawn();
+        }
+      });
+    });
+    // With apples
+    this.apples.forEach((a) => {
+      // Except self
+      if(this !== a) {
+        if(a.x === this.x && a.y === this.y) {
+          this.respawn();
+        }
+      }
+    });
+    return false;
   }
 }
 
@@ -147,11 +177,6 @@ io.on('connection', (client) => {
     id = ++autoId;
     player = new Snake('right', 0, 1, id);
     players.push(player);
-
-    // Create applesA
-    let apple = new Apple(0,0);
-    apples.push(apple.respawn());
-
     // Callback with id
     cb({ id: autoId });
   });
@@ -167,13 +192,13 @@ io.on('connection', (client) => {
   // Remove players on disconnect
   client.on('disconnect', () => {
     players.remove(player);
-    // also remove one apple
-    apples.pop();
   });
 });
 
 // Create apples
-apples.push(new Apple(15,15));
+for(var i=0; i < 3; i++) {
+  apples.push(new Apple(players, apples));
+}
 
 // Main loop
 setInterval(() => {
@@ -189,7 +214,10 @@ setInterval(() => {
       points: p.points,
       tail: p.tail
     })),
-    apples: apples
+    apples: apples.map((a) => ({
+      x: a.x,
+      y: a.y
+    }))
   });
 }, 100);
 
