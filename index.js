@@ -41,6 +41,7 @@ class Snake {
     this.y = y;
     this.id = id;
     this.points = 0;
+    this.tail = [];
   }
 
   changeDirection(key) {
@@ -61,6 +62,13 @@ class Snake {
   }
 
   move() {
+    // Update tail
+    for(var i = this.tail.length-1; i >= 0; i--) {
+      this.tail[i].x = (i===0) ? this.x : this.tail[i-1].x;
+      this.tail[i].y = (i===0) ? this.y : this.tail[i-1].y;
+    }
+
+    // Move head
     switch(this.dir) {
       case 'right':
         this.x++; break;
@@ -72,7 +80,7 @@ class Snake {
         this.y++; break;
     }
 
-    // Boundaries
+    // Check boundaries
     if(this.x > 30-1) this.x = 0;
     if(this.x < 0) this.x = 30-1;
     if(this.y > 30-1) this.y = 0;
@@ -84,6 +92,7 @@ class Snake {
       const obj = objects[i];
       if(obj.x === this.x && obj.y === this.y) {
         this.addPoint(1);
+        this.addTail();
         obj.respawn();
       }
     }
@@ -91,6 +100,10 @@ class Snake {
 
   addPoint(p) {
     this.points += p;
+  }
+
+  addTail() {
+    this.tail.push({x: this.x, y: this.y});
   }
 }
 
@@ -106,6 +119,7 @@ class Apple {
   respawn() {
     this.x = Math.random() * 30 | 0;
     this.y = Math.random() * 30 | 0;
+    return this;
   }
 }
 
@@ -129,9 +143,16 @@ io.on('connection', (client) => {
   let id;
 
   client.on('auth', (cb) => {
+    // Create player
     id = ++autoId;
     player = new Snake('right', 0, 1, id);
     players.push(player);
+
+    // Create applesA
+    let apple = new Apple(0,0);
+    apples.push(apple.respawn());
+
+    // Callback with id
     cb({ id: autoId });
   });
 
@@ -143,9 +164,11 @@ io.on('connection', (client) => {
     }
   });
 
-  // Remove player on disconnect
+  // Remove players on disconnect
   client.on('disconnect', () => {
     players.remove(player);
+    // also remove one apple
+    apples.pop();
   });
 });
 
@@ -163,7 +186,8 @@ setInterval(() => {
       x: p.x,
       y: p.y ,
       id: p.id,
-      points: p.points
+      points: p.points,
+      tail: p.tail
     })),
     apples: apples
   });

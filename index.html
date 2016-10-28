@@ -46,19 +46,31 @@
           // Reset other
           $('#others').text('');
 
-          // Render players & scores
+          // Render scores
           players.forEach((p) => {
+
+            // scores
             if(p.id === playerId) {
-              context.fillStyle = "#fff";
               $('#own').text(p.points);
             } else {
-              context.fillStyle = "#4286f4";
               $('#others')
                 .append($('<span>')
                 .text('Player ' + p.id + ': ' + p.points))
                 .append($('<br>'));
             }
+
+            // players
+            if(p.id === playerId) {
+              context.fillStyle = "#fff";
+            } else {
+              context.fillStyle = "#4286f4";
+            }
             context.fillRect(p.x*cellSize, p.y*cellSize, cellSize, cellSize);
+
+            // tails
+            p.tail.forEach((t) => {
+              context.fillRect(t.x*cellSize, t.y*cellSize, cellSize, cellSize);
+            });
           });
 
           // Render apples
