@@ -40,6 +40,7 @@ class Snake {
     this.x = x;
     this.y = y;
     this.id = id;
+    this.points = 0;
   }
 
   changeDirection(key) {
@@ -82,10 +83,14 @@ class Snake {
     for(let i = 0; i < objects.length; i++) {
       const obj = objects[i];
       if(obj.x === this.x && obj.y === this.y) {
+        this.addPoint(1);
         obj.respawn();
       }
     }
+  }
 
+  addPoint(p) {
+    this.points += p;
   }
 }
 
@@ -157,7 +162,8 @@ setInterval(() => {
     players: players.map((p) => ({
       x: p.x,
       y: p.y ,
-      id: p.id
+      id: p.id,
+      points: p.points
     })),
     apples: apples
   });

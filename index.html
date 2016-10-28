@@ -4,10 +4,19 @@
     <title>Socket.IO Snake Multiplayer</title>
     <style>
       * { margin: 0; padding: 0; }
+      body { font: 24px Helvetica, Arial; }
+      #scores { float: right; padding-top: 16px; padding-right: 16px; }
     </style>
   </head>
   <body>
+    <div id="scores">
+      Your Score: <span id="own">0</span>
+      <hr />
+      <div id="others">
+      </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       GameCanvas = (function() {
         /*
@@ -24,7 +33,7 @@
         }
 
         /*
-          Render game canvas & draw players
+          Render game canvas & draw players, apples & scores
         */
         GameCanvas.prototype.draw = function(players, apples) {
           var context = this.context;
@@ -34,12 +43,20 @@
           this.context.fillStyle = "#555";
           this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-          // Render players
+          // Reset other
+          $('#others').text('');
+
+          // Render players & scores
           players.forEach((p) => {
             if(p.id === playerId) {
               context.fillStyle = "#fff";
+              $('#own').text(p.points);
             } else {
               context.fillStyle = "#4286f4";
+              $('#others')
+                .append($('<span>')
+                .text('Player ' + p.id + ': ' + p.points))
+                .append($('<br>'));
             }
             context.fillRect(p.x*cellSize, p.y*cellSize, cellSize, cellSize);
           });
