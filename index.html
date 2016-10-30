@@ -10,7 +10,10 @@
   </head>
   <body>
     <div id="scores">
-      Your Score: <span id="own">0</span>
+      <div id="own">
+        Nickname: <input type="text" id="nickname" />
+        <input type="button" id="auth" value="Play!" />
+      </div>
       <hr />
       <div id="others">
       </div>
@@ -52,11 +55,13 @@
 
             // scores
             if(p.id === playerId) {
-              $('#own').text(p.points);
+              $('#own')
+                .text(p.nickname + ' score: ' + p.points)
+                .append($('<br>'));
             } else {
               $('#others')
                 .append($('<span>')
-                .text('Player ' + p.id + ': ' + p.points))
+                .text(p.nickname + ' ' + p.id + ': ' + p.points))
                 .append($('<br>'));
             }
 
@@ -90,11 +95,17 @@
 
       var socket = io();
       var playerId;
+      var nickname;
 
       // Authenticate
-      socket.emit('auth', (session) => {
-        playerId = session.id;
-        console.log('new session: ' + playerId);
+      $('#auth').click(() => {
+        nickname = $('#nickname').val().trim();
+        if(nickname && nickname !== '') {
+          socket.emit('auth', { nickname }, (session) => {
+            playerId = session.id;
+            console.log('new session: ' + playerId);
+          });
+        }
       });
 
       // Create & insert canvas

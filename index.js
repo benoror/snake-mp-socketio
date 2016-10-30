@@ -37,16 +37,16 @@ io.on('connection', (client) => {
   let player;
   let id;
 
-  client.on('auth', (cb) => {
+  client.on('auth', (opts, cb) => {
     // Create player
     id = ++autoId;
-    player = new Snake({
+    player = new Snake(_.assign({
       id,
       dir: 'right',
       gridSize: GRID_SIZE,
       snakes: players,
       apples
-    });
+    }, opts));
     players.push(player);
     // Callback with id
     cb({ id: autoId });
@@ -85,6 +85,7 @@ setInterval(() => {
       x: p.x,
       y: p.y ,
       id: p.id,
+      nickname: p.nickname,
       points: p.points,
       tail: p.tail
     })),
