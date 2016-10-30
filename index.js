@@ -35,13 +35,12 @@ let apples = [];
  * Snake class
  */
 class Snake {
-  constructor(dir, x, y, id) {
+  constructor(dir, id, snakes, apples) {
     this.dir = dir; //direction
-    this.x = x;
-    this.y = y;
     this.id = id;
-    this.points = 0;
-    this.tail = [];
+    this.snakes = snakes;
+    this.apples = apples;
+    this.respawn();
   }
 
   changeDirection(key) {
@@ -85,24 +84,67 @@ class Snake {
     if(this.x < 0) this.x = 30-1;
     if(this.y > 30-1) this.y = 0;
     if(this.y < 0) this.y = 30-1;
+
+    // Collission detection
+    this._checkCollisions();
   }
 
-  checkCollisions(objects) {
-    for(let i = 0; i < objects.length; i++) {
-      const obj = objects[i];
-      if(obj.x === this.x && obj.y === this.y) {
-        this.addPoint(1);
-        this.addTail();
-        obj.respawn();
+  _checkCollisions() {
+    // With other snakes (including ours)
+    this.snakes.forEach((s) => {
+      // Heads except ourself
+      if(s !== this) {
+        if(s.x === this.x && s.y === this.y) {
+          // The bigger survives
+          // ToDo: 3 outcomes
+          // - Same length = both die
+          if(s !== this && this.tail.length < s.tail.length) {
+            this.respawn();
+            s._addTail();
+          } else {
+            s.respawn();
+            this._addTail();
+          }
+        }
       }
-    }
+      // Tails
+      s.tail.forEach((t) => {
+        if(t.x === this.x && t.y === this.y) {
+          // The bigger survives
+          // ToDo: 3 outcomes
+          // - Same length = both die
+          if(s !== this && this.tail.length < s.tail.length) {
+            this.respawn();
+            s._addTail();
+          } else {
+            s.respawn();
+            this._addTail();
+          }
+        }
+      });
+    });
+    // With apples
+    this.apples.forEach((a) => {
+      if(a.x === this.x && a.y === this.y) {
+        this._addPoint(1);
+        this._addTail();
+        a.respawn();
+      }
+    });
   }
 
-  addPoint(p) {
+  respawn() {
+    this.tail = [];
+    this.points = 0;
+    this.x = Math.random() * 30 | 0;
+    this.y = Math.random() * 30 | 0;
+  }
+
+  _addPoint(p) {
     this.points += p;
   }
 
-  addTail() {
+  _addTail() {
     this.tail.push({x: this.x, y: this.y});
   }
 }
@@ -121,12 +163,12 @@ class Apple {
     this.x = Math.random() * 30 | 0;
     this.y = Math.random() * 30 | 0;
 
-    this.checkCollisions();
+    this._checkCollisions();
 
     return this;
   }
 
-  checkCollisions() {
+  _checkCollisions() {
     // With snakes
     this.snakes.forEach((s) => {
       // Head
@@ -149,7 +191,6 @@ class Apple {
         }
       }
     });
-    return false;
   }
 }
 
@@ -175,7 +216,7 @@ io.on('connection', (client) => {
   client.on('auth', (cb) => {
     // Create player
     id = ++autoId;
-    player = new Snake('right', 0, 1, id);
+    player = new Snake('right', id, players, apples);
     players.push(player);
     // Callback with id
     cb({ id: autoId });
@@ -204,7 +245,6 @@ for(var i=0; i < 3; i++) {
 setInterval(() => {
   players.forEach((p) => {
     p.move();
-    p.checkCollisions(apples);
   });
   io.emit('state', {
     players: players.map((p) => ({
