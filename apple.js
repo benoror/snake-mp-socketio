@@ -5,15 +5,16 @@
  * Apple class
  */
 class Apple {
-  constructor(snakes, apples) {
+  constructor(gridSize, snakes, apples) {
+    this.gridSize = gridSize;
     this.snakes = snakes;
     this.apples = apples;
     this.respawn();
   }
 
   respawn() {
-    this.x = Math.random() * 30 | 0;
-    this.y = Math.random() * 30 | 0;
+    this.x = Math.random() * this.gridSize | 0;
+    this.y = Math.random() * this.gridSize | 0;
 
     this._checkCollisions();
 

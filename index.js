@@ -19,10 +19,10 @@ Array.prototype.remove = function(e) {
 
 // ID's seed
 let autoId = 0;
-
+// Grid size
+const GRID_SIZE = 40;
 // Remote players 🐍
 let players = [];
-
 // Apples 🍎
 let apples = [];
 
@@ -47,7 +47,7 @@ io.on('connection', (client) => {
   client.on('auth', (cb) => {
     // Create player
     id = ++autoId;
-    player = new Snake(id, 'right', players, apples);
+    player = new Snake(id, 'right', GRID_SIZE, players, apples);
     players.push(player);
     // Callback with id
     cb({ id: autoId });
@@ -69,7 +69,7 @@ io.on('connection', (client) => {
 
 // Create apples
 for(var i=0; i < 3; i++) {
-  apples.push(new Apple(players, apples));
+  apples.push(new Apple(GRID_SIZE, players, apples));
 }
 
 // Main loop

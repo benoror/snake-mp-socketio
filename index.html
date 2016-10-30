@@ -29,7 +29,8 @@
           this.canvas = canvas;
           this.canvas.width = this.canvas.height = ratio;
           this.context = this.canvas.getContext('2d');
-          this.cellSize = ratio / 30;
+          this.gridSize = 40;
+          this.cellSize = ratio / this.gridSize;
         }
 
         /*

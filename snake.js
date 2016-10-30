@@ -13,9 +13,10 @@ const KEYS = {
  * Snake class
  */
 class Snake {
-  constructor(id, dir, snakes, apples) {
+  constructor(id, dir, gridSize, snakes, apples) {
     this.id = id;
     this.dir = dir; //direction
+    this.gridSize = gridSize;
     this.snakes = snakes;
     this.apples = apples;
     this.respawn();
@@ -58,10 +59,10 @@ class Snake {
     }
 
     // Check boundaries
-    if(this.x > 30-1) this.x = 0;
-    if(this.x < 0) this.x = 30-1;
-    if(this.y > 30-1) this.y = 0;
-    if(this.y < 0) this.y = 30-1;
+    if(this.x > this.gridSize-1) this.x = 0;
+    if(this.x < 0) this.x = this.gridSize-1;
+    if(this.y > this.gridSize-1) this.y = 0;
+    if(this.y < 0) this.y = this.gridSize-1;
 
     // Collission detection
     this._checkCollisions();
@@ -114,8 +115,8 @@ class Snake {
   respawn() {
     this.tail = [];
     this.points = 0;
-    this.x = Math.random() * 30 | 0;
-    this.y = Math.random() * 30 | 0;
+    this.x = Math.random() * this.gridSize | 0;
+    this.y = Math.random() * this.gridSize | 0;
   }
 
   _addPoint(p) {
