@@ -1,14 +1,14 @@
 // Use ES6
 "use strict";
 
+const _ = require('lodash');
+
 /*
  * Apple class
  */
 class Apple {
-  constructor(gridSize, snakes, apples) {
-    this.gridSize = gridSize;
-    this.snakes = snakes;
-    this.apples = apples;
+  constructor(options) {
+    _.assign(this, options);
     this.respawn();
   }
 

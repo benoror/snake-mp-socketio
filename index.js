@@ -5,17 +5,10 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const _ = require('lodash');
 
 const Snake = require('./snake');
 const Apple = require('./apple');
-
-// Handy remove method for arrays
-Array.prototype.remove = function(e) {
-  let p, _;
-  if ((p = this.indexOf(e)) > -1) {
-    return ([].splice.apply(this, [p, p - p + 1].concat(_ = [])), _);
-  }
-};
 
 // ID's seed
 let autoId = 0;
@@ -47,7 +40,13 @@ io.on('connection', (client) => {
   client.on('auth', (cb) => {
     // Create player
     id = ++autoId;
-    player = new Snake(id, 'right', GRID_SIZE, players, apples);
+    player = new Snake({
+      id,
+      dir: 'right',
+      gridSize: GRID_SIZE,
+      snakes: players,
+      apples
+    });
     players.push(player);
     // Callback with id
     cb({ id: autoId });
@@ -63,13 +62,17 @@ io.on('connection', (client) => {
 
   // Remove players on disconnect
   client.on('disconnect', () => {
-    players.remove(player);
+    _.remove(players, player);
   });
 });
 
 // Create apples
 for(var i=0; i < 3; i++) {
-  apples.push(new Apple(GRID_SIZE, players, apples));
+  apples.push(new Apple({
+    gridSize: GRID_SIZE,
+    snakes: players,
+    apples
+  }));
 }
 
 // Main loop

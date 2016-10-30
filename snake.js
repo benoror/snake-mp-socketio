@@ -1,6 +1,8 @@
 // Use ES6
 "use strict";
 
+const _ = require('lodash');
+
 // Key maps
 const KEYS = {
   up: 38,
@@ -13,12 +15,8 @@ const KEYS = {
  * Snake class
  */
 class Snake {
-  constructor(id, dir, gridSize, snakes, apples) {
-    this.id = id;
-    this.dir = dir; //direction
-    this.gridSize = gridSize;
-    this.snakes = snakes;
-    this.apples = apples;
+  constructor(options) {
+    _.assign(this, options);
     this.respawn();
   }
 
