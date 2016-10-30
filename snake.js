@@ -77,10 +77,8 @@ class Snake {
           // - Same length = both die
           if(s !== this && this.tail.length < s.tail.length) {
             this.respawn();
-            s._addTail();
           } else {
             s.respawn();
-            this._addTail();
           }
         }
       }
@@ -92,10 +90,8 @@ class Snake {
           // - Same length = both die
           if(s !== this && this.tail.length < s.tail.length) {
             this.respawn();
-            s._addTail();
           } else {
             s.respawn();
-            this._addTail();
           }
         }
       });
