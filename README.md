@@ -1,3 +1,5 @@
 A simple Multiplayer Snake game for learning Socket.IO
 
-Local version: https://jsbin.com/lapose/edit?js,output
+First (local) version: https://jsbin.com/lapose/edit?js,output
+
+Based on ideas from: http://agar.io/
