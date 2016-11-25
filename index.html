@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Socket.IO Snake Multiplayer</title>
+    <title>Socket.IO + Phaser.io Snake Multiplayer</title>
     <style>
       * { margin: 0; padding: 0; }
       body { font: 24px Helvetica, Arial; }
@@ -20,6 +20,7 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdn.rawgit.com/photonstorm/phaser/master/build/phaser.min.js"></script>
     <script>
       GameCanvas = (function() {
         /*
@@ -47,10 +48,10 @@
           this.context.fillStyle = "#555";
           this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-          // Reset other
+          // Reset others
           $('#others').text('');
 
-          // Render scores
+          // Render players
           players.forEach((p) => {
 
             // scores
@@ -65,7 +66,7 @@
                 .append($('<br>'));
             }
 
-            // players
+            // snakes
             if(p.id === playerId) {
               context.fillStyle = "#fff";
             } else {
@@ -93,6 +94,77 @@
         Initialize Game
       */
 
+      var GameP = (function() {
+
+        function GameP(players, apples, ratio, gridSize) {
+          this.players = players;
+          this.apples = apples;
+          this.ratio = ratio;
+          this.gridSize = gridSize;
+          this.cellSize = ratio / this.gridSize;
+        }
+
+        GameP.prototype.create = function() {
+          // background
+          phaserGame.stage.backgroundColor = '#060f28';
+        }
+
+        GameP.prototype.render = function() {
+          var cellSize = this.cellSize;
+
+          // Render players
+          this.players.forEach((p) => {
+
+            // scores
+            if(p.id === playerId) {
+              $('#own')
+                .text(p.nickname + ' score: ' + p.points)
+                .append($('<br>'));
+            } else {
+              $('#others')
+                .append($('<span>')
+                .text(p.nickname + ' ' + p.id + ': ' + p.points))
+                .append($('<br>'));
+            }
+
+            // snakes
+            if(p.id === playerId) {
+              phaserGame.debug.geom(new Phaser.Rectangle(p.x*cellSize, p.y*cellSize, cellSize, cellSize), '#fff');
+            } else {
+              phaserGame.debug.geom(new Phaser.Rectangle(p.x*cellSize, p.y*cellSize, cellSize, cellSize), '#4286f4');
+            }
+
+            // tails
+            p.tail.forEach((t) => {
+              if(p.id === playerId) {
+                phaserGame.debug.geom(new Phaser.Rectangle(t.x*cellSize, t.y*cellSize, cellSize, cellSize), '#fff');
+              } else {
+                phaserGame.debug.geom(new Phaser.Rectangle(t.x*cellSize, t.y*cellSize, cellSize, cellSize), '#4286f4');
+              }
+            });
+          });
+
+          // Render apples
+          this.apples.forEach((a) => {
+            phaserGame.debug.geom(new Phaser.Rectangle(a.x*cellSize, a.y*cellSize, cellSize, cellSize), '#ff0000');
+          });
+        }
+
+        return GameP;
+      })();
+
+      var ratio = window.innerWidth < window.innerHeight ?
+        window.innerWidth : window.innerHeight;
+      var phaserGame = new Phaser.Game(ratio, ratio, Phaser.CANVAS, 'snake-multiplayer');
+
+      var players = [], apples = [];
+
+      phaserGame.state.add('Game', new GameP(players, apples, ratio, 40));
+      phaserGame.state.start('Game');
+
+
+
+
       var socket = io();
       var playerId;
       var nickname;
@@ -113,7 +185,7 @@
       document.body.appendChild(canvas);
 
       // Create game with canvas
-      var game = new GameCanvas(canvas);
+      //var game = new GameCanvas(canvas);
 
       // Send keystrokes
       document.onkeydown = (ev) => {
@@ -123,7 +195,10 @@
       // Receive state from server
       socket.on('state', (stuff) => {
         // and redraw the game
-        game.draw(stuff.players, stuff.apples);
+        //game.draw(stuff.players, stuff.apples);
+        console.log(stuff);
+        players = stuff.players;
+        apples = stuff.apples;
       });
 
     </script>
